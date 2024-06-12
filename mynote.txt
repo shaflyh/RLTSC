@@ -1,0 +1,3 @@
+python $SUMO_HOME/tools/visualization/plotXMLAttributes.py edgedata_100.xml -i id -x density -y left --scatterplot --yfactor 300 --ylabel vehs/hour --csv-output ouput100.csv
+python $SUMO_HOME/tools/visualization/plotXMLAttributes.py edgedata_100.xml -i id -x laneDensity -y left --scatterplot --yfactor 300 --ylabel vehs/hour --csv-output ouput100_lane.csv
+python $SUMO_HOME/tools/visualization/plotXMLAttributes.py lanedata_100.xml -i id -x laneDensity -y left --scatterplot --yfactor 60 --ylabel vehs/hour --csv-output ouput100_lane.csv
