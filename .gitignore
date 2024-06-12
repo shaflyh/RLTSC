@@ -135,4 +135,4 @@ results3/
 results/
 results_base/
 environments/
-metrics/
+metrics/**/
