@@ -2,6 +2,9 @@ import xml.etree.ElementTree as ET
 import csv
 import os
 
+# Path to your .net.xml file
+net_xml_file_path = './environments/ingolstadt21/ingolstadt21.net.xml'
+
 def extract_lane_lengths(net_xml_path):
     # Load the XML file
     tree = ET.parse(net_xml_path)
@@ -39,8 +42,6 @@ def get_output_filename(net_xml_path):
     output_filename = f"{name_without_extension}_lane_lengths.csv"
     return os.path.join(directory, output_filename)
 
-# Path to your .net.xml file
-net_xml_file_path = './environments/ingolstadt21/ingolstadt21.net.xml'
 
 # Generate the output CSV file name
 output_csv_file_path = get_output_filename(net_xml_file_path)

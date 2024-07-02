@@ -2,6 +2,9 @@ import xml.etree.ElementTree as ET
 import csv
 import os
 
+# Path to your .net.xml file
+xml_file_path = 'process_results/jakarta1/IDDQN-drq_norm-wait_norm-Jakarta1 Robust test/lanedata/lanedata_1.xml'
+
 def parse_xml_to_csv(xml_data, csv_filename):
     # Parse the XML data
     root = ET.parse(xml_data)
@@ -41,8 +44,6 @@ def get_output_filename(net_xml_path):
     output_filename = f"{name_without_extension}.csv"
     return os.path.join(directory, output_filename)
 
-# Path to your .net.xml file
-xml_file_path = './results/ingolstadt7/IDQN-tr0-7-drq_norm-wait_norm/lanedata/lanedata_100.xml'
 
 # Generate the output CSV file name
 output_csv_file_path = get_output_filename(xml_file_path)    
