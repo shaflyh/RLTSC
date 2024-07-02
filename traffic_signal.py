@@ -38,55 +38,62 @@ class Signal:
         #    link = link[0]  # unpack so link[0] is inbound, link[1] outbound
         #    if link[0] not in lanes: lanes.append(link[0])
         #print(self.id, lanes)
+        
+        ## COMMENT ALL THIS SECTION 
+        # We don't need all of this for simulation with DQN
+        # # Unique lanes
+        # self.lanes = []
+        # self.outbound_lanes = []
 
-        # Unique lanes
-        self.lanes = []
-        self.outbound_lanes = []
+        # reversed_directions = {'N': 'S', 'E': 'W', 'S': 'N', 'W': 'E'}
+        
+        # # Group of lanes constituting a direction of traffic
+        # myconfig = signal_configs[map_name]
+        # if self.id in myconfig:
+        #     self.lane_sets = myconfig[self.id]['lane_sets']
+        #     self.lane_sets_outbound = self.lane_sets.copy()
+        #     for key in self.lane_sets_outbound:     # Remove values from copy
+        #         self.lane_sets_outbound[key] = []
+        #     self.downstream = myconfig[self.id]['downstream']
 
-        reversed_directions = {'N': 'S', 'E': 'W', 'S': 'N', 'W': 'E'}
+        #     self.inbounds_fr_direction = dict()
+        #     for direction in self.lane_sets:
+        #         for lane in self.lane_sets[direction]:
+        #             inbound_to_direction = direction.split('-')[0]
+        #             inbound_fr_direction = reversed_directions[inbound_to_direction]
+        #             if inbound_fr_direction in self.inbounds_fr_direction:
+        #                 dir_lanes = self.inbounds_fr_direction[inbound_fr_direction]
+        #                 if lane not in dir_lanes:
+        #                     dir_lanes.append(lane)
+        #             else:
+        #                 self.inbounds_fr_direction[inbound_fr_direction] = [lane]
+        #             if lane not in self.lanes: self.lanes.append(lane)
 
-        # Group of lanes constituting a direction of traffic
-        myconfig = signal_configs[map_name]
-        if self.id in myconfig:
-            self.lane_sets = myconfig[self.id]['lane_sets']
-            self.lane_sets_outbound = self.lane_sets.copy()
-            for key in self.lane_sets_outbound:     # Remove values from copy
-                self.lane_sets_outbound[key] = []
-            self.downstream = myconfig[self.id]['downstream']
-
-            self.inbounds_fr_direction = dict()
-            for direction in self.lane_sets:
-                for lane in self.lane_sets[direction]:
-                    inbound_to_direction = direction.split('-')[0]
-                    inbound_fr_direction = reversed_directions[inbound_to_direction]
-                    if inbound_fr_direction in self.inbounds_fr_direction:
-                        dir_lanes = self.inbounds_fr_direction[inbound_fr_direction]
-                        if lane not in dir_lanes:
-                            dir_lanes.append(lane)
-                    else:
-                        self.inbounds_fr_direction[inbound_fr_direction] = [lane]
-                    if lane not in self.lanes: self.lanes.append(lane)
-
-            # Populate outbound lane information
-            self.out_lane_to_signalid = dict()
-            for direction in self.downstream:
-                dwn_signal = self.downstream[direction]
-                if dwn_signal is not None:  # A downstream intersection exists
-                    dwn_lane_sets = myconfig[dwn_signal]['lane_sets']    # Get downstream signal's lanes
-                    for key in dwn_lane_sets:   # Find all inbound lanes from upstream
-                        if key.split('-')[0] == direction:    # Downstream direction matches
-                            dwn_lane_set = dwn_lane_sets[key]
-                            if dwn_lane_set is None: raise Exception('Invalid signal config')
-                            for lane in dwn_lane_set:
-                                if lane not in self.outbound_lanes: self.outbound_lanes.append(lane)
-                                self.out_lane_to_signalid[lane] = dwn_signal
-                                for selfkey in self.lane_sets:
-                                    if selfkey.split('-')[1] == key.split('-')[0]:    # Out dir. matches dwnstrm in dir.
-                                        self.lane_sets_outbound[selfkey] += dwn_lane_set
-            for key in self.lane_sets_outbound:  # Remove duplicates
-                self.lane_sets_outbound[key] = list(set(self.lane_sets_outbound[key]))
-        else:
-            self.generate_config()
+        #     # Populate outbound lane information
+        #     self.out_lane_to_signalid = dict()
+        #     for direction in self.downstream:
+        #         dwn_signal = self.downstream[direction]
+        #         if dwn_signal is not None:  # A downstream intersection exists
+        #             dwn_lane_sets = myconfig[dwn_signal]['lane_sets']    # Get downstream signal's lanes
+        #             for key in dwn_lane_sets:   # Find all inbound lanes from upstream
+        #                 if key.split('-')[0] == direction:    # Downstream direction matches
+        #                     dwn_lane_set = dwn_lane_sets[key]
+        #                     if dwn_lane_set is None: raise Exception('Invalid signal config')
+        #                     for lane in dwn_lane_set:
+        #                         if lane not in self.outbound_lanes: self.outbound_lanes.append(lane)
+        #                         self.out_lane_to_signalid[lane] = dwn_signal
+        #                         for selfkey in self.lane_sets:
+        #                             if selfkey.split('-')[1] == key.split('-')[0]:    # Out dir. matches dwnstrm in dir.
+        #                                 self.lane_sets_outbound[selfkey] += dwn_lane_set
+        #     for key in self.lane_sets_outbound:  # Remove duplicates
+        #         self.lane_sets_outbound[key] = list(set(self.lane_sets_outbound[key]))
+        # else:
+        #     self.generate_config()
+        
+        # Get traffic light information from this command instead
+        self.lanes = list(
+            dict.fromkeys(self.sumo.trafficlight.getControlledLanes(self.id))
+        )  # Remove duplicates and keep order
 
         self.waiting_times = dict()     # SUMO's WaitingTime and AccumulatedWaiting are both wrong for multiple signals
 

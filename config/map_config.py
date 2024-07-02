@@ -1,4 +1,26 @@
 map_configs = {
+    'jakarta1': {
+        'lights': [],
+        'net': 'environments/jakarta1/jakarta1.sumocfg',
+        'route': None,
+        'step_length': 10,
+        'yellow_length': 3,
+        'step_ratio': 1,
+        'start_time': 28800,
+        'end_time': 32400,
+        'warmup': 0
+    },
+    # 'jakarta1': {
+    #     'lights': [],
+    #     'net': 'environments/jakarta1/jakarta1.sumocfg',
+    #     'route': None,
+    #     'step_length': 10,
+    #     'yellow_length': 3,
+    #     'step_ratio': 1,
+    #     'start_time': 28800,
+    #     'end_time': 32400,
+    #     'warmup': 0
+    # },
     'jakarta': {
         'lights': [],
         'net': 'environments/jakarta/jkt-new.sumocfg',
