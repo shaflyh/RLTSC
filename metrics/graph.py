@@ -28,6 +28,7 @@ method_list = {
     'MAXPRESSURE': 'Max Pressure',
     'FULLMAXPRESSURE': 'Max Pressure w/ All phases',
     'IDQN': 'IDQN',
+    'IDDQN': 'IDDQN',
     'IDQN2': 'IDQN2',
     'MPLight': 'MPLight',
     'MPLightFULL': 'Full State MPLight',
@@ -48,6 +49,12 @@ metrics_name = ['Average Queue', 'Average Delay',
 
 chart = {
     'IDQN': {
+        'Average Queue': [],
+        'Average Delay': [],
+        'Average Wait': [],
+        'Average Trip Time': []
+    },
+    'IDDQN': {
         'Average Queue': [],
         'Average Delay': [],
         'Average Wait': [],
@@ -85,18 +92,22 @@ chart = {
     },
 }
 
+
 for met_i, metric_data in enumerate(metrics_data):
     # print('\n--------------------------')
     # print(f'Metrics: {metrics_name[met_i]}')
     # print()
     dqn_max = 0
+    descs = []
     plt.gca().set_prop_cycle(None)
+    plt.figure(figsize=(8, 4)) 
     for run_name in metric_data:
         # print(f'\nResult: {run_name}')
         if '_yerr' not in run_name:
             method_name = run_name.split('-')[0]
             state_name = run_name.split('-')[1]
             reward_name = run_name.split('-')[2]
+            desc = (run_name.split('-')[3])
             label_name = f'{method_name} {state_name} {reward_name}'
             
             # print('---------------------')
@@ -105,7 +116,7 @@ for met_i, metric_data in enumerate(metrics_data):
             # print('state: ' + state_name)
             # print('reward: ' + reward_name)
 
-            if method_name == 'IDQN':
+            if method_name == 'IDQN' or method_name == 'IDDQN':
                 # Set ylim to DQN max, it's approx. random perf.
                 dqn_max = np.max(metric_data[run_name])
 
@@ -173,7 +184,7 @@ for met_i, metric_data in enumerate(metrics_data):
                     low = windowed
                     high = windowed
                 # print(windowed)
-                plt.plot(windowed, label=label_name)
+                plt.plot(windowed, label=desc)
                 plt.fill_between(x, low, high, alpha=0.4)
             else:
                 if method_name == 'FMA2C':  # Skip pink in color cycle
@@ -182,23 +193,25 @@ for met_i, metric_data in enumerate(metrics_data):
                 # method_name = run_name.split(' ')[0]
                 x = [num_episodes-1, num_episodes]
                 y = [last_n]*2
-                plt.plot(x, y, label=method_list[method_name])
+                # plt.plot(x, y, label=method_list[method_name])
+                plt.plot(x, y, label=descs)
                 plt.fill_between([], [], [])  # Advance color cycle
 
     points = np.asarray([0, 20, 40, 60, 80, 100, num_episodes])
-    labels = ('0', '20', '40', '60', '80', '100', '..1400')
+    # labels = ('0', '20', '40', '60', '80', '100', '..1400')
     plt.yticks()
-    plt.xticks(points, labels)
+    # plt.xticks(points, labels)
     plt.xlabel('Episode')
     # plt.ylabel('Delay (s)')
     # plt.title(
     #     f'{metrics_name[met_i]} {graph_map_title[map]}')
     plt.title(metrics_name[met_i])
-    plt.legend()
+    plt.tight_layout(rect=[0, 0, 0.6, 1]) 
+    plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
     bot, top = plt.ylim()
     if bot < 0:
         bot = 0
-    plt.ylim(bot, dqn_max)
+    # plt.ylim(0, dqn_max)
     file_path = os.path.join(save_dir, metrics_name[met_i] + '.png')
     plt.savefig(file_path)
     print(args.show)

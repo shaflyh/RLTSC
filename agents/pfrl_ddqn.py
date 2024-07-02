@@ -44,24 +44,35 @@ class DuelingDQN(nn.Module):
         self.conv = nn.Sequential(
             nn.Conv2d(in_channels, 64, kernel_size=(2, 2)),
             nn.ReLU(),
-            nn.Flatten()
-        )
-        self.fc = nn.Sequential(
+            nn.Flatten(),
             nn.Linear(h * w * 64, 64),
             nn.ReLU(),
             nn.Linear(64, 64),
             nn.ReLU()
         )
-        self.value_stream = nn.Linear(64, 1)
-        self.advantage_stream = nn.Linear(64, num_actions)
+        self.value_stream = nn.Sequential(
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Linear(64, 1)
+        )
+        self.advantage_stream = nn.Sequential(
+            nn.Linear(64, 64),
+            nn.ReLU(),
+            nn.Linear(64, num_actions)
+        )
     
     def forward(self, x):
         x = self.conv(x)
-        x = self.fc(x)
         value = self.value_stream(x)
         advantages = self.advantage_stream(x)
         q_values = value + (advantages - advantages.mean(dim=1, keepdim=True))
         return DiscreteActionValueHead()(q_values)
+    
+    def get_value_adv(self, x):
+        x = self.conv(x)
+        value = self.value_stream(x)
+        advantages = self.advantage_stream(x)
+        return value, advantages - advantages.mean(dim=1, keepdim=True)
 
 # Replace the model definition in DQNAgent initialization
 

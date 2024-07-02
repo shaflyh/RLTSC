@@ -1,3 +1,4 @@
+from agents.pfrl_ddqn import IDDQN
 import rewards as rewards
 import states as states
 
@@ -104,6 +105,30 @@ agent_configs = {
         'EPS_DECAY': 220,
         'TARGET_UPDATE': 500,
         'demand_shape': 1
+    },
+    'IDDQN': {
+        'agent': IDDQN,
+        'state': states.drq_norm,
+        'reward': rewards.wait_norm,
+        'max_distance': 200,
+        'BATCH_SIZE': 32,
+        'GAMMA': 0.99,
+        'EPS_START': 1.0,
+        'EPS_END': 0.0,
+        'EPS_DECAY': 220,
+        'TARGET_UPDATE': 500
+    },
+    'IDDQNR': {
+        'agent': IDDQN,
+        'state': states.drq_norm_rand,
+        'reward': rewards.wait_norm,
+        'max_distance': 200,
+        'BATCH_SIZE': 32,
+        'GAMMA': 0.99,
+        'EPS_START': 1.0,
+        'EPS_END': 0.0,
+        'EPS_DECAY': 220,
+        'TARGET_UPDATE': 500
     },
     # Reward wait norm
     'IDQN1': {
