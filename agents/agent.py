@@ -32,8 +32,11 @@ class IndependentAgent(Agent):
         for agent_id in observation.keys():
             self.agents[agent_id].observe(observation[agent_id], reward[agent_id], done, info)
             if done:
-                save_path = os.path.join(self.config['log_dir'], 'agent', 'agent_' + agent_id)
+                save_dir = os.path.join(self.config['log_dir'], f"agent_{info['eps']}")
+                save_path = os.path.join(save_dir, 'agent_' + agent_id)
                 if info['eps'] % self.config['save_freq'] == 0:
+                    if not os.path.exists(save_dir):
+                        os.makedirs( save_dir)
                     self.agents[agent_id].save(save_path)
 
 
