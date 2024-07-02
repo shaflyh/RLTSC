@@ -9,9 +9,12 @@ from config.map_config import map_configs
 import matplotlib
 matplotlib.use('TkAgg')
 
-def readXML(map_name):
-    episodes = 100
-    log_dir = os.path.join('results', map_name)
+def count_episode(directory):
+    with os.scandir(directory) as entries:
+        return sum(1 for entry in entries if entry.is_file())
+
+def readXML(map_name):    
+    log_dir = os.path.join('process_results', map_name)
     print(log_dir)
 
     run_results = [folder for folder in next(os.walk(log_dir))[1]]
@@ -30,9 +33,11 @@ def readXML(map_name):
             split_name = run_name.split('-')
             map_name = map_name
             average_per_episode = []
+            tripinfo_folder = os.path.join(log_dir, run_name, 'tripinfo')
+            episodes = count_episode(tripinfo_folder)
+        
             for i in range(1, episodes+1):
-                trip_file = os.path.join(
-                    log_dir, run_name, 'tripinfo', f'tripinfo_{i}.xml')
+                trip_file = os.path.join(tripinfo_folder, f'tripinfo_{i}.xml')
                 try:
                     print(i)
                     tree = ET.parse(trip_file)

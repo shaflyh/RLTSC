@@ -8,9 +8,12 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 
+def count_episode(directory):
+    with os.scandir(directory) as entries:
+        return sum(1 for entry in entries if entry.is_file())
+
 def readCSV(map_name):
-    episodes = 100
-    log_dir = os.path.join('results', map_name)
+    log_dir = os.path.join('process_results', map_name)
     print(log_dir)
     run_results = [folder for folder in next(os.walk(log_dir))[1]]
 
@@ -23,11 +26,12 @@ def readCSV(map_name):
 
     for run_name in run_results:
         print(f'Reading metric {run_name}')
+        metric_folder = os.path.join(log_dir, run_name, 'metrics')
+        episodes = count_episode(metric_folder)
         # split_name = run_name.split('-')
         average_per_episode = []
         for i in range(1, episodes+1):
-            metric_file = os.path.join(
-                log_dir, run_name, 'metrics', f'metrics_{i}.csv')
+            metric_file = os.path.join(metric_folder, f'metrics_{i}.csv')
             if not os.path.exists(metric_file):
                 raise FileNotFoundError(f"{metric_file} does not exist!")
 
