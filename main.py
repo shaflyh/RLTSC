@@ -8,6 +8,7 @@ import argparse
 from config.agent_config import agent_configs
 from config.map_config import map_configs
 from config.mdp_config import mdp_configs
+from adversarial import fgsm_attack, pgd_attack
 
 
 import time
@@ -30,7 +31,7 @@ def main():
                     help='Number of processes to use for parallel execution. Set to 1 to run sequentially.')
     ap.add_argument("--map", type=str, default='ingolstadt1',
                     choices=['grid4x4', 'arterial4x4', 'ingolstadt1', 'ingolstadt7', 'ingolstadt21',
-                             'cologne1', 'cologne3', 'cologne8', 'jakarta'],
+                             'cologne1', 'cologne3', 'cologne8', 'jakarta', 'jakarta1'],
                     help='The map configuration to use for the simulation.')
     ap.add_argument("--pwd", type=str, default=os.path.dirname(__file__),
                     help='Path to the directory where the script is located.')
@@ -42,13 +43,26 @@ def main():
                     help='Boolean flag to use libsumo (True) or Traci (False) as the backend. Note: libsumo does not support multi-threading.')
     ap.add_argument("--tr", type=int, default=0,
                     help='Trial number to run when multi-threading is not used.')
-    ap.add_argument("--save_freq", type=int, default=100,
+    ap.add_argument("--save_freq", type=int, default=5,
                     help='Frequency of saving the simulation state.')
     ap.add_argument("--load", type=bool, default=False,
                     help='Boolean flag to load the agent from a saved state.')
+    # ap.add_argument("--robust", action='store_true', help="Robust training.")
+    ap.add_argument("--attack", type=str, choices=['PGD', 'FSGM'],)
+    ap.add_argument("--name", type=str, default='default', help='Additional folder name.')
 
     args = ap.parse_args()
 
+    if args.libsumo:
+        # Set the environment variable
+        os.environ['LIBSUMO_AS_TRACI'] = '1'
+        
+    if args.attack == 'FSGM':
+        args.name = args.name + ' FSGM attack'
+        print(args.name)
+    if args.attack == 'PGD':
+        args.name = args.name + ' PGD attack'
+        
     # Check if libsumo installed
     if args.libsumo and 'LIBSUMO_AS_TRACI' not in os.environ:
         raise EnvironmentError(
@@ -113,6 +127,7 @@ def run_trial(args, trial):
                       step_ratio=map_config['step_ratio'], end_time=map_config['end_time'],
                       max_distance=agt_config['max_distance'], lights=map_config['lights'], gui=args.gui,
                       log_dir=os.path.join(args.log_dir, args.map), libsumo=args.libsumo, warmup=map_config['warmup'],
+                      name=args.name
                       )
 
     # schedulers decay over 80% of steps
@@ -120,7 +135,7 @@ def run_trial(args, trial):
     agt_config['steps'] = agt_config['episodes'] * num_steps_eps
     agt_config['log_dir'] = os.path.join(args.log_dir, args.map, env.connection_name)
     agt_config['num_lights'] = len(env.all_ts_ids)
-    
+
     
     # Get agent id's, observation shapes, and action sizes from env
     obs_act = dict()
@@ -139,12 +154,27 @@ def run_trial(args, trial):
         obs = env.reset()
         print(f'Episode {_+1}')
         done = False
-        while not done:
-            act = agent.act(obs)
-            print(act)
-            actf
-            obs, rew, done, info = env.step(act)
-            agent.observe(obs, rew, done, info)
+        if args.attack == 'FSGM':
+            print("FSGM Attack Env")
+            while not done:
+                epsilon = 0.01  # Define the strength of the perturbation
+                perturbed_obs = fgsm_attack(agent, obs, epsilon)
+                act = agent.act(perturbed_obs)
+                obs, rew, done, info = env.step(act)
+                agent.observe(obs, rew, done, info)
+        elif args.attack == 'PGD':
+            print("PGD Attack Env")
+            while not done:
+                epsilon = 0.01  # Define the strength of the perturbation
+                perturbed_obs = pgd_attack(agent, obs, epsilon)
+                act = agent.act(perturbed_obs)
+                obs, rew, done, info = env.step(act)
+                agent.observe(obs, rew, done, info)
+        else:
+            while not done:
+                act = agent.act(obs)            
+                obs, rew, done, info = env.step(act)
+                agent.observe(obs, rew, done, info)
     env.close()
 
 if __name__ == '__main__':

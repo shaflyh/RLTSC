@@ -10,7 +10,7 @@ from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 class MultiSignal(gym.Env):
     def __init__(self, run_name, map_name, net, state_fn, reward_fn, route=None, gui=False, end_time=3600,
                  step_length=10, yellow_length=4, step_ratio=1, max_distance=200, lights=(), log_dir='/', libsumo=False,
-                 warmup=0, gymma=False):
+                 warmup=0, gymma=False, name='default'):
         self.libsumo = libsumo
         self.gymma = gymma  # gymma expects sequential list of states/rewards instead of dict
         print(map_name, net, state_fn.__name__, reward_fn.__name__)
@@ -29,6 +29,7 @@ class MultiSignal(gym.Env):
         self.step_ratio = step_ratio
         self.connection_name = run_name + '-' + map_name + '---' + state_fn.__name__ + '-' + reward_fn.__name__
         self.map_name = map_name
+        self.name = name
 
         # Run some steps in the simulation with default light configurations to detect phases
         if self.route is not None:
@@ -89,7 +90,7 @@ class MultiSignal(gym.Env):
 
         if not self.libsumo: traci.switch(self.connection_name)
         traci.close()
-        self.connection_name = run_name + '-' + state_fn.__name__ + '-' + reward_fn.__name__
+        self.connection_name = run_name + '-' + state_fn.__name__ + '-' + reward_fn.__name__ + '-' + self.name
         save_path = os.path.join(log_dir, self.connection_name)
         if not os.path.exists(save_path):
             os.makedirs(save_path)
@@ -111,7 +112,7 @@ class MultiSignal(gym.Env):
         lane_data_output = os.path.join(save_path, 'lanedata_' + str(self.run) + '.xml')
         # edge_data_output = os.path.join(self.log_dir, self.connection_name, 'edgedata_' + str(self.run) + '.xml')
         root = Element('additional')
-        lane_data = SubElement(root, 'laneData', id=self.map_name, file=lane_data_output, freq="60", writeAttributes="laneDensity entered departed left arrived")
+        lane_data = SubElement(root, 'laneData', id=self.map_name, file=lane_data_output, freq="300", writeAttributes="laneDensity entered departed left arrived")
         # edge_data = SubElement(root, 'edgeData', id=self.map_name, file=edge_data_output, freq="300")
         tree = ElementTree(root)
         tree.write(filename)
@@ -143,7 +144,6 @@ class MultiSignal(gym.Env):
         save_path = os.path.join(self.log_dir, self.connection_name, 'tripinfo')
         if not os.path.exists(save_path):
             os.makedirs(save_path)
-            os.makedirs(os.path.join(self.log_dir, self.connection_name, 'agent'))
         self.sumo_cmd += ['--random', '--time-to-teleport', '-1', '--tripinfo-output',
                           os.path.join(save_path, 'tripinfo_' + str(self.run) + '.xml'),
                           "--additional-files", additional_file,
