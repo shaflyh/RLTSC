@@ -1,3 +1,17 @@
 python $SUMO_HOME/tools/visualization/plotXMLAttributes.py edgedata_100.xml -i id -x density -y left --scatterplot --yfactor 300 --ylabel vehs/hour --csv-output ouput100.csv
 python $SUMO_HOME/tools/visualization/plotXMLAttributes.py edgedata_100.xml -i id -x laneDensity -y left --scatterplot --yfactor 300 --ylabel vehs/hour --csv-output ouput100_lane.csv
 python $SUMO_HOME/tools/visualization/plotXMLAttributes.py lanedata_100.xml -i id -x laneDensity -y left --scatterplot --yfactor 60 --ylabel vehs/hour --csv-output ouput100_lane.csv
+python main.py --agent IDDQN2 --map ingolstadt1 --name "Robust e0.1"
+
+python main.py --agent IDDQN2 --map ingolstadt7 --name "Robust 250"
+python main.py --agent IDDQN2 --map ingolstadt7 --name "Standard 250"
+python main.py --agent IDDQN2 --map jakarta1 --name "Standard 250" --load True --attack PGD
+
+python main.py --agent IDDQN2 --map ingolstadt7 --name "Robust 1000" --load True --attack PGD
+python main.py --agent IDDQN2 --map ingolstadt7 --name "Robust 1000" --load True
+
+
+
+python main.py --agent IDDQN2 --map cologne3 --name "Robust 10k"
+python main.py --agent IDDQN2 --map cologne3 --name "Standard 10k"
+

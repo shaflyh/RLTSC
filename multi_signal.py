@@ -216,6 +216,24 @@ class MultiSignal(gym.Env):
                 rww.append(rewards[ts])
             return obss, rww, [done], {'eps': self.run}
         return observations, rewards, done, {'eps': self.run}
+    
+    def step_fixed(self):
+        self.step_sim()
+
+        # observe new state and reward
+        observations = self.state_fn(self.signals)
+        rewards = self.reward_fn(self.signals)
+
+        self.calc_metrics(rewards)
+
+        done = self.sumo.simulation.getTime() >= self.end_time
+        if self.gymma:
+            obss, rww = list(), list()
+            for ts in self.ts_order:
+                obss.append(observations[ts])
+                rww.append(rewards[ts])
+            return obss, rww, [done], {'eps': self.run}
+        return observations, rewards, done, {'eps': self.run}
 
     def calc_metrics(self, rewards):
         queue_lengths = dict()

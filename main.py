@@ -25,7 +25,7 @@ def main():
                     help='Type of agent to use in the simulation.')
     ap.add_argument("--trials", type=int, default=1,
                     help='Number of simulation trials to run.')
-    ap.add_argument("--eps", type=int, default=100,
+    ap.add_argument("--eps", type=int, default=10000,
                     help='Number of episodes per trial.')
     ap.add_argument("--procs", type=int, default=1,
                     help='Number of processes to use for parallel execution. Set to 1 to run sequentially.')
@@ -43,13 +43,15 @@ def main():
                     help='Boolean flag to use libsumo (True) or Traci (False) as the backend. Note: libsumo does not support multi-threading.')
     ap.add_argument("--tr", type=int, default=0,
                     help='Trial number to run when multi-threading is not used.')
-    ap.add_argument("--save_freq", type=int, default=5,
+    ap.add_argument("--save_freq", type=int, default=100,
                     help='Frequency of saving the simulation state.')
     ap.add_argument("--load", type=bool, default=False,
                     help='Boolean flag to load the agent from a saved state.')
     # ap.add_argument("--robust", action='store_true', help="Robust training.")
     ap.add_argument("--attack", type=str, choices=['PGD', 'FSGM'],)
     ap.add_argument("--name", type=str, default='default', help='Additional folder name.')
+    ap.add_argument("--fixed", action='store_true', help="Running with fixed time only.")
+    
 
     args = ap.parse_args()
 
@@ -129,6 +131,16 @@ def run_trial(args, trial):
                       log_dir=os.path.join(args.log_dir, args.map), libsumo=args.libsumo, warmup=map_config['warmup'],
                       name=args.name
                       )
+    
+    if(args.fixed):
+        for _ in range(args.eps):
+            env.reset()
+            print(f'Episode {_+1}')
+            done = False
+            while not done:
+                obs, rew, done, info = env.step_fixed()
+        finished
+        
 
     # schedulers decay over 80% of steps
     agt_config['episodes'] = int(args.eps * 0.8)
@@ -157,15 +169,18 @@ def run_trial(args, trial):
         if args.attack == 'FSGM':
             print("FSGM Attack Env")
             while not done:
-                epsilon = 0.01  # Define the strength of the perturbation
+                epsilon = 1/20  # Define the strength of the perturbation
+                # print(obs)
                 perturbed_obs = fgsm_attack(agent, obs, epsilon)
+                # print('perturbed_obs')
+                # print(perturbed_obs)
                 act = agent.act(perturbed_obs)
                 obs, rew, done, info = env.step(act)
                 agent.observe(obs, rew, done, info)
         elif args.attack == 'PGD':
             print("PGD Attack Env")
             while not done:
-                epsilon = 0.01  # Define the strength of the perturbation
+                epsilon = 5/100  # Define the strength of the perturbation
                 perturbed_obs = pgd_attack(agent, obs, epsilon)
                 act = agent.act(perturbed_obs)
                 obs, rew, done, info = env.step(act)
