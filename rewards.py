@@ -3,6 +3,18 @@ import random
 from config.mdp_config import mdp_configs
 
 
+def queue(signals):
+    rewards = dict()
+    for signal_id in signals:
+        total_queue = 0
+        for lane in signals[signal_id].lanes:
+            total_queue += signals[signal_id].full_observation[lane]['queue']
+
+        rewards[signal_id] = -total_queue
+        # print(signal_id)
+        # print(rewards[signal_id])
+    return rewards
+
 def wait(signals):
     rewards = dict()
     for signal_id in signals:

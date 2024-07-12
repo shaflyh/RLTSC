@@ -13,9 +13,10 @@ def count_episode(directory):
         return sum(1 for entry in entries if entry.is_file())
 
 def readCSV(map_name):
-    log_dir = os.path.join('process_results', map_name)
+    log_dir = os.path.join('results', map_name)
     print(log_dir)
     run_results = [folder for folder in next(os.walk(log_dir))[1]]
+    run_results = sorted(run_results)
 
     metric = 'queue'
     output_dir = os.path.join('metrics', map_name)
@@ -87,8 +88,8 @@ def readCSV(map_name):
         alg_name.append(run_name)
         alg_res.append(avg_delays)
 
-        alg_name.append(run_name+'_yerr')
-        alg_res.append(err)
+        # alg_name.append(run_name+'_yerr')
+        # alg_res.append(err)
 
         plt.title(run_name)
         plt.plot(avg_delays)

@@ -1,9 +1,16 @@
 import subprocess
+import argparse
 
 # List of map names
 # map_names = ["ingolstadt21", "ingolstadt7", "ingolstadt1","arterial4x4"]
 # maps = ['ingolstadt1', 'ingolstadt7', 'cologne1', 'cologne3', 'cologne8', 'jakarta']
-maps = ["ingolstadt21"]
+# maps = ["ingolstadt1"]
+
+# Create an argument parser
+parser = argparse.ArgumentParser(description="Read CSV and XML files for a given map.")
+parser.add_argument("--map", required=True, help="The name of the map.")
+args = parser.parse_args()
+maps = [args.map]
 
 # Loop through each map name
 for map in maps:

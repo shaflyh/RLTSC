@@ -29,6 +29,7 @@ method_list = {
     'FULLMAXPRESSURE': 'Max Pressure w/ All phases',
     'IDQN': 'IDQN',
     'IDDQN': 'IDDQN',
+    'IDDQN2': 'IDDQN2',
     'IDQN2': 'IDQN2',
     'MPLight': 'MPLight',
     'MPLightFULL': 'Full State MPLight',
@@ -55,6 +56,12 @@ chart = {
         'Average Trip Time': []
     },
     'IDDQN': {
+        'Average Queue': [],
+        'Average Delay': [],
+        'Average Wait': [],
+        'Average Trip Time': []
+    },
+    'IDDQN2': {
         'Average Queue': [],
         'Average Delay': [],
         'Average Wait': [],
@@ -100,7 +107,8 @@ for met_i, metric_data in enumerate(metrics_data):
     dqn_max = 0
     descs = []
     plt.gca().set_prop_cycle(None)
-    plt.figure(figsize=(8, 4)) 
+    # plt.figure(figsize=(8, 4)) 
+    plt.figure(figsize=(10, 6))  # Set the figure size
     for run_name in metric_data:
         # print(f'\nResult: {run_name}')
         if '_yerr' not in run_name:
@@ -145,11 +153,11 @@ for met_i, metric_data in enumerate(metrics_data):
 
             # Print stats
             if method_name in statics:
-                print('{} {}'.format(method_list[method_name], avg_tot))
+                # print('{} {}'.format(method_list[method_name], avg_tot))
                 do_nothing = 0
             else:
-                print(
-                    '{} {} +- {}'.format(method_list[method_name], last_n, last_n_err))
+                # print(
+                #     '{} {} +- {}'.format(method_list[method_name], last_n, last_n_err))
                 if not (map == 'grid4x4' or map == 'arterial4x4'):
                     chart[method_list[method_name]][metrics_name[met_i]].append(
                         str(last_n))  # +' $\pm$ '+str(last_n_err)
@@ -184,7 +192,7 @@ for met_i, metric_data in enumerate(metrics_data):
                     low = windowed
                     high = windowed
                 # print(windowed)
-                plt.plot(windowed, label=desc)
+                plt.plot(windowed, label=desc, linewidth=2)
                 plt.fill_between(x, low, high, alpha=0.4)
             else:
                 if method_name == 'FMA2C':  # Skip pink in color cycle
@@ -194,34 +202,38 @@ for met_i, metric_data in enumerate(metrics_data):
                 x = [num_episodes-1, num_episodes]
                 y = [last_n]*2
                 # plt.plot(x, y, label=method_list[method_name])
-                plt.plot(x, y, label=descs)
+                plt.plot(x, y, label=descs, color='b', linewidth=2)
                 plt.fill_between([], [], [])  # Advance color cycle
 
     points = np.asarray([0, 20, 40, 60, 80, 100, num_episodes])
     # labels = ('0', '20', '40', '60', '80', '100', '..1400')
     plt.yticks()
     # plt.xticks(points, labels)
-    plt.xlabel('Episode')
+    plt.xlabel('Episode', fontsize=14)
+    plt.ylabel(metrics_name[met_i], fontsize=14)
     # plt.ylabel('Delay (s)')
     # plt.title(
     #     f'{metrics_name[met_i]} {graph_map_title[map]}')
-    plt.title(metrics_name[met_i])
-    plt.tight_layout(rect=[0, 0, 0.6, 1]) 
-    plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
+    plt.title(metrics_name[met_i] + ' Over Episodes', fontsize=16)
+    # plt.tight_layout(rect=[0, 0, 0.6, 1]) 
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    plt.legend(fontsize=12)
+    plt.tight_layout()
+    # plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
     bot, top = plt.ylim()
     if bot < 0:
         bot = 0
     # plt.ylim(0, dqn_max)
     file_path = os.path.join(save_dir, metrics_name[met_i] + '.png')
-    plt.savefig(file_path)
-    print(args.show)
+    plt.savefig(file_path, dpi=300)
+    # print(args.show)
     # is_show = False
     if args.show:
         plt.show()
     else:
         plt.clf()
 
-for method_name in chart:
-    print(method_name)
-    for met in metrics_name:
-        print(met, ' & ', ' & '.join(chart[method_name][met]), '\\\\')
+# for method_name in chart:
+#     print(method_name)
+#     for met in metrics_name:
+#         print(met, ' & ', ' & '.join(chart[method_name][met]), '\\\\')

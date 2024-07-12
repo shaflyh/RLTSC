@@ -14,10 +14,11 @@ def count_episode(directory):
         return sum(1 for entry in entries if entry.is_file())
 
 def readXML(map_name):    
-    log_dir = os.path.join('process_results', map_name)
+    log_dir = os.path.join('results', map_name)
     print(log_dir)
 
     run_results = [folder for folder in next(os.walk(log_dir))[1]]
+    run_results = sorted(run_results)
 
     metrics = ['timeLoss', 'duration', 'waitingTime']
 
@@ -29,7 +30,7 @@ def readXML(map_name):
         run_avg = dict()
 
         for run_name in run_results:
-            print(f'Reading tripinfo {run_name}')
+            print(f'Reading tripinfo {run_name} | Metrics {metric}')
             split_name = run_name.split('-')
             map_name = map_name
             average_per_episode = []
@@ -39,7 +40,7 @@ def readXML(map_name):
             for i in range(1, episodes+1):
                 trip_file = os.path.join(tripinfo_folder, f'tripinfo_{i}.xml')
                 try:
-                    print(i)
+                    # print(i)
                     tree = ET.parse(trip_file)
                     root = tree.getroot()
                     num_trips, total = 0, 0.0
@@ -118,8 +119,8 @@ def readXML(map_name):
             alg_name.append(run_name)
             alg_res.append(avg_delays)
 
-            alg_name.append(run_name+'_yerr')
-            alg_res.append(err)
+            # alg_name.append(run_name+'_yerr')
+            # alg_res.append(err)
 
             plt.title(run_name)
             plt.plot(avg_delays)

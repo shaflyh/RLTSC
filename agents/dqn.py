@@ -352,8 +352,10 @@ class DQN(agent.AttributeSavingMixin, agent.BatchAgent):
             )
             if errors_out is None:
                 errors_out = []
-        loss = self._compute_loss(exp_batch, errors_out=errors_out)
-        # loss = self._compute_robust_loss(exp_batch)
+        # loss = self._compute_loss(exp_batch, errors_out=errors_out)
+
+        # loss = self._compute_standard_loss(exp_batch)
+        loss = self._compute_robust_loss(exp_batch, 5/100, 0.5)
         if has_weight:
             assert isinstance(self.replay_buffer, PrioritizedReplayBuffer)
             self.replay_buffer.update_errors(errors_out)
@@ -379,7 +381,7 @@ class DQN(agent.AttributeSavingMixin, agent.BatchAgent):
             gamma=self.gamma,
             batch_states=self.batch_states,
         )
-        # loss = self._compute_loss(exp_batch, errors_out=None)
+        # loss = self._compute_loss(exp_batch, errors_out=None)        
         # loss = self._compute_robust_loss(exp_batch)
         self.loss_record.append(float(loss.detach().cpu().numpy()))
         self.optimizer.zero_grad()
@@ -473,7 +475,42 @@ class DQN(agent.AttributeSavingMixin, agent.BatchAgent):
                 batch_accumulator=self.batch_accumulator,
             )
             
-    def _compute_robust_loss(self, exp_batch, attack_epsilon_end = 0.01, kappa = 0.5):
+    def _compute_standard_loss(self, exp_batch):
+        #adjust for the substracting mean in model.forward by making the model automatically substract the mean
+        with torch.no_grad():
+            self.model.advantage_stream[-1].weight[:] -= torch.mean(self.model.advantage_stream[-1].weight, dim=0, keepdim=True)
+            self.model.advantage_stream[-1].bias[:] -= torch.mean(self.model.advantage_stream[-1].bias, dim=0, keepdim=True)
+        
+        batch_state = exp_batch["state"]
+        batch_next_state = exp_batch["next_state"]
+        batch_actions = exp_batch["action"]
+        batch_rewards = exp_batch["reward"]
+        batch_terminal = exp_batch["is_state_terminal"]
+        discount = exp_batch["discount"]
+        
+        # Ensure batch_actions (or action) is of type int64
+        batch_actions = batch_actions.long()
+
+        value, advs = self.model.get_value_adv(batch_state)
+        q_values = value + advs
+
+        next_value, next_advs = self.model.get_value_adv(batch_next_state)
+        next_q_values = next_value + next_advs
+
+        target_next_value, target_next_advs = self.target_model.get_value_adv(batch_next_state)
+        target_next_q_values = target_next_value + target_next_advs
+
+        q_value      = q_values.gather(1, batch_actions.unsqueeze(1)).squeeze(1)
+        next_q_value = target_next_q_values.gather(1, torch.argmax(next_q_values, 1, keepdim=True)).squeeze(1)
+        expected_q_value = batch_rewards + discount * next_q_value * (1 - batch_terminal)
+        
+        standard_loss = torch.min((q_value - expected_q_value.detach()).pow(2), torch.abs(q_value - expected_q_value.detach()))
+        
+        standard_loss = standard_loss.mean()
+        
+        return standard_loss
+            
+    def _compute_robust_loss(self, exp_batch, attack_epsilon_end, kappa):
         #adjust for the substracting mean in model.forward by making the model automatically substract the mean
         with torch.no_grad():
             self.model.advantage_stream[-1].weight[:] -= torch.mean(self.model.advantage_stream[-1].weight, dim=0, keepdim=True)
@@ -491,9 +528,11 @@ class DQN(agent.AttributeSavingMixin, agent.BatchAgent):
         
         # Attack epsilon
         attack_epsilon_schedule = self.explorer.decay_steps
+        # print('attack_epsilon_schedule')
         attack_eps_scheduler = EpsilonScheduler("smoothed", self.replay_start_size, attack_epsilon_schedule, 0, 
                                                 attack_epsilon_end, attack_epsilon_schedule)
         attack_epsilon = attack_eps_scheduler.get_eps(0, self.cumulative_steps)
+        # print(attack_epsilon)
 
         value, advs = self.model.get_value_adv(batch_state)
         q_values = value + advs

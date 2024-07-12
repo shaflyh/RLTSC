@@ -1,4 +1,5 @@
 from agents.pfrl_ddqn import IDDQN
+from agents.pfrl_ddqn2 import IDDQN2
 import rewards as rewards
 import states as states
 
@@ -106,11 +107,47 @@ agent_configs = {
         'TARGET_UPDATE': 500,
         'demand_shape': 1
     },
+    # 'IDDQN': {
+    #     'agent': IDDQN,
+    #     'state': states.drq_norm,
+    #     'reward': rewards.wait_norm,
+    #     'max_distance': 200,
+    #     'BATCH_SIZE': 32,
+    #     'GAMMA': 0.99,
+    #     'EPS_START': 1.0,
+    #     'EPS_END': 0.0,
+    #     'EPS_DECAY': 220,
+    #     'TARGET_UPDATE': 500
+    # },
     'IDDQN': {
         'agent': IDDQN,
         'state': states.drq_norm,
-        'reward': rewards.wait_norm,
-        'max_distance': 200,
+        'reward': rewards.queue,
+        'max_distance': 100,
+        'BATCH_SIZE': 32,
+        'GAMMA': 0.99,
+        'EPS_START': 1.0,
+        'EPS_END': 0.0,
+        'EPS_DECAY': 220,
+        'TARGET_UPDATE': 500
+    },
+    'IDDQN2': {
+        'agent': IDDQN2,
+        'state': states.queue,
+        'reward': rewards.queue,
+        'max_distance': 100,
+        'BATCH_SIZE': 32,
+        'GAMMA': 0.99,
+        'EPS_START': 1.0,
+        'EPS_END': 0.0,
+        'EPS_DECAY': 220,
+        'TARGET_UPDATE': 500
+    },
+    'IDDQN2P': {
+        'agent': IDDQN2,
+        'state': states.mplight,
+        'reward': rewards.pressure,
+        'max_distance': 100,
         'BATCH_SIZE': 32,
         'GAMMA': 0.99,
         'EPS_START': 1.0,

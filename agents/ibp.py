@@ -14,11 +14,20 @@ def initial_bounds(x0, epsilon):
 def weighted_bound(layer, prev_upper, prev_lower):
     prev_mu = (prev_upper + prev_lower)/2
     prev_r = (prev_upper - prev_lower)/2
+
+    # Check if prev_mu needs to be flattened for Linear layer
+    if isinstance(layer, nn.Linear) and prev_mu.dim() > 2:
+        prev_mu = prev_mu.view(prev_mu.size(0), -1)  # Flatten
+        prev_r = prev_r.view(prev_r.size(0), -1)    # Flatten
+    
     mu = layer(prev_mu)
     if type(layer)==nn.Linear:
         r = F.linear(prev_r, torch.abs(layer.weight))
     elif type(layer)==nn.Conv2d:
         r = F.conv2d(prev_r, torch.abs(layer.weight), stride=layer.stride, padding=layer.padding)
+    elif type(layer) == nn.Conv1d:
+        mu = F.conv1d(prev_mu, layer.weight, bias=None, stride=layer.stride, padding=layer.padding)
+        r = F.conv1d(prev_r, torch.abs(layer.weight), bias=None, stride=layer.stride, padding=layer.padding)
     
     upper = mu + r
     lower = mu - r
@@ -41,9 +50,9 @@ def network_bounds(model, x0, epsilon):
     for layer in model.modules():
         if type(layer) in (nn.Sequential,):
             pass
-        elif type(layer) in (nn.ReLU, nn.Sigmoid, nn.Tanh, nn.MaxPool2d, nn.Flatten):
+        elif type(layer) in (nn.ReLU, nn.Sigmoid, nn.Tanh, nn.MaxPool2d, nn.Flatten, nn.AdaptiveAvgPool1d):
             upper, lower = activation_bound(layer, upper, lower)
-        elif type(layer) in (nn.Linear, nn.Conv2d):
+        elif type(layer) in (nn.Linear, nn.Conv2d, nn.Conv1d):
             upper, lower = weighted_bound(layer, upper, lower)
         else:
             print('Unsupported layer:', type(layer))
@@ -61,9 +70,9 @@ def subsequent_bounds(model, upper, lower):
     for layer in model.modules():
         if type(layer) in (nn.Sequential,):
             pass
-        elif type(layer) in (nn.ReLU, nn.Sigmoid, nn.Tanh, nn.MaxPool2d, nn.Flatten):
+        elif type(layer) in (nn.ReLU, nn.Sigmoid, nn.Tanh, nn.MaxPool2d, nn.Flatten, nn.AdaptiveAvgPool1d):
             upper, lower = activation_bound(layer, upper, lower)
-        elif type(layer) in (nn.Linear, nn.Conv2d):
+        elif type(layer) in (nn.Linear, nn.Conv2d, nn.Conv1d):
             upper, lower = weighted_bound(layer, upper, lower)
         else:
             print('Unsupported layer:', type(layer))

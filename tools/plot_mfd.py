@@ -4,16 +4,15 @@ import datetime
 import math
 
 csv_lanelength = 'environments/jakarta/lane-length-new.csv'
-csv_list = ['process_results/jakarta1/IDDQN-drq_norm-wait_norm-Jakarta1 Normal test/lanedata_1.csv',
-            'process_results/jakarta1/IDDQN-drq_norm-wait_norm-Jakarta1 Robust test/lanedata_1.csv']
+csv_list = ['lanedata_jakarta_fixed.csv',]
 # csv_list = ['lane_ids.csv']
-print(csv_lanelength)
-print(csv_list[0])
+# print(csv_lanelength)
+# print(csv_list[0])
 
 
 def get_lane_length(csv_lanelength):  # get lane length information
     lanelength_data = pd.read_csv(csv_lanelength, skiprows=1, header=None)
-    print(lanelength_data)
+    # print(lanelength_data)
     lane_list = lanelength_data[0]
     length_list = lanelength_data[1]/1000
     # store in dictionary :
@@ -31,7 +30,7 @@ def get_data_group(csv_flow_and_density):  # grouping data to pandas object
     dummy_group = flowdensity_lane.get_group(
         list(flowdensity_lane.groups.keys())[0])
     time_list = dummy_group['time']
-    print(time_list)
+    # print(time_list)
 
     # real grouping (group by time)
     flowdensity_time = flowdensity.groupby('time')
@@ -92,7 +91,7 @@ for i, csv in enumerate(csv_list):
     # Qn flow, Kn density
 # print(len(Kn['lane_ids.xlsx']))
 # density_flow_csv = 'flow-density-csv/density_flow.csv'
-print(len(Qn[0]))
+# print(len(Qn[0]))
 
 
 time_list_hr = {}
@@ -115,6 +114,10 @@ ticks_list_y = [d for d in range(0, 250, 50)]
 
 
 for i, csv in enumerate(csv_list):
+    print(sum(Kn[i]))
+    print(max(Kn[i]))
+    print(sum(Qn[i]))
+    print(max(Qn[i]))
     plt.scatter(Kn[i], Qn[i], label=csv, s=5)
 plt.yticks(ticks_list_y)
 plt.title('Macroscopic Fundamental Diagram')

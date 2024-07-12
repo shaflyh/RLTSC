@@ -39,8 +39,8 @@ class Signal:
         #    if link[0] not in lanes: lanes.append(link[0])
         #print(self.id, lanes)
         
-        ## COMMENT ALL THIS SECTION 
-        # We don't need all of this for simulation with DQN
+        # # COMMENT ALL THIS SECTION 
+        # # We don't need all of this for simulation with DQN
         # # Unique lanes
         # self.lanes = []
         # self.outbound_lanes = []

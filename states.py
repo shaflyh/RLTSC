@@ -142,18 +142,10 @@ def queue(signals):
         signal = signals[signal_id]
         obs = []
         act_index = signal.phase
-        for i, lane in enumerate(signal.lanes):
-            lane_obs = []
-            if i == act_index:
-                lane_obs.append(1)
-            else:
-                lane_obs.append(0)
-                
+        for i, lane in enumerate(signal.lanes):   
             queue_length = signal.full_observation[lane]['queue']
-            
-            lane_obs.append(queue_length / 28)
-
-            obs.append(lane_obs)
+            queue_norm = queue_length / 20
+            obs.append(queue_norm)
         observations[signal_id] = np.expand_dims(np.asarray(obs), axis=0)
     return observations
 

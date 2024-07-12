@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 
-def fgsm_attack(agent, obs, epsilon=0.01):
+def fgsm_attack(agent, obs, epsilon):
     # 'agent' is an instance of IDDQN which has sub-agents for each traffic signal
     # 'obs' is a dictionary with traffic signal IDs as keys and observation arrays as values
     
@@ -34,7 +34,8 @@ def fgsm_attack(agent, obs, epsilon=0.01):
         
         # Create the perturbation using the sign of the gradients and multiply by epsilon
         perturbation = epsilon * obs_tensor.grad.sign()
-        
+        # print(perturbation)
+    
         # Apply the perturbation and remove batch dimension
         perturbed_obs_tensor = (obs_tensor + perturbation).squeeze(0)
         
@@ -48,7 +49,7 @@ def fgsm_attack(agent, obs, epsilon=0.01):
     return perturbed_obs
 
 
-def pgd_attack(agent, obs, epsilon=0.02, alpha=0.001, num_iter=40):
+def pgd_attack(agent, obs, epsilon, num_iter=10):
     """
     Performs the PGD attack on an agent given the original observations.
 
@@ -59,6 +60,11 @@ def pgd_attack(agent, obs, epsilon=0.02, alpha=0.001, num_iter=40):
     :param num_iter: The number of iterations to perform the attack.
     :return: A dictionary containing the perturbed observations.
     """
+    # print('obs')
+    # print(obs)
+    
+    alpha = epsilon / 10
+    
     perturbed_obs = {}
 
     for ts_id, observation in obs.items():
@@ -97,5 +103,8 @@ def pgd_attack(agent, obs, epsilon=0.02, alpha=0.001, num_iter=40):
 
         # Detach the final version of perturbed_obs_tensor and move to CPU
         perturbed_obs[ts_id] = perturbed_obs_tensor.detach().squeeze(0).cpu().numpy()
+        
+    # print('perturbed_obs')
+    # print(perturbed_obs)
 
     return perturbed_obs
