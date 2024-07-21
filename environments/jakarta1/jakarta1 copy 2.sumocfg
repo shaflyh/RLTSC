@@ -1,0 +1,15 @@
+<configuration>
+    <input>
+        <net-file value="jakarta1.net.xml"/>
+        <route-files value="jakarta1.rou.xml"/>
+        <gui-settings-file value="guisettings.cfg"/>
+    </input>
+    <time>
+        <begin value="21600"/>
+        <end value="82800"/>
+    </time>
+    <output>
+        <summary value = "output/summarydqn.xml"/>
+        <statistic-output value = "output/statisticdqn.xml"/>
+    </output>
+</configuration>

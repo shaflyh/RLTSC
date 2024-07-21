@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-07-21 14:06:08 by Eclipse SUMO sumo Version 1.20.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="/home/shaflyh/Projects/Thesis/RLTSC/environments/jakarta/jakarta.net.xml"/>
+        <route-files value="/home/shaflyh/Projects/Thesis/RLTSC/environments/jakarta/jakarta.rou.xml"/>
+        <additional-files value="/home/shaflyh/Projects/Thesis/RLTSC/environments/jakarta/jakarta.add.xml"/>
+    </input>
+
+    <output>
+        <summary-output value="/home/shaflyh/Projects/Thesis/RLTSC/environments/jakarta/output/summarydqn.xml"/>
+        <tripinfo-output value="/home/shaflyh/Projects/Thesis/RLTSC/environments/jakarta/output/tripinfodqn.xml"/>
+        <statistic-output value="/home/shaflyh/Projects/Thesis/RLTSC/environments/jakarta/output/statisticdqn.xml"/>
+    </output>
+
+    <time>
+        <begin value="21600"/>
+        <end value="82800"/>
+    </time>
+
+    <report>
+        <no-warnings value="True"/>
+    </report>
+
+    <traci_server>
+        <remote-port value="34167"/>
+    </traci_server>
+
+    <gui_only>
+        <gui-settings-file value="/home/shaflyh/Projects/Thesis/RLTSC/environments/jakarta/guisettings.cfg"/>
+    </gui_only>
+
+</configuration>
+-->
+
+<tripinfos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/tripinfo_file.xsd">
+</tripinfos>

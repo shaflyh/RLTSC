@@ -25,7 +25,7 @@ def main():
                     help='Type of agent to use in the simulation.')
     ap.add_argument("--trials", type=int, default=1,
                     help='Number of simulation trials to run.')
-    ap.add_argument("--eps", type=int, default=10000,
+    ap.add_argument("--eps", type=int, default=100,
                     help='Number of episodes per trial.')
     ap.add_argument("--procs", type=int, default=1,
                     help='Number of processes to use for parallel execution. Set to 1 to run sequentially.')
