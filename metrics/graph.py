@@ -30,6 +30,7 @@ method_list = {
     'IDQN': 'IDQN',
     'IDDQN': 'IDDQN',
     'IDDQN2': 'IDDQN2',
+    'IDDQN3': 'IDDQN3',
     'IDQN2': 'IDQN2',
     'MPLight': 'MPLight',
     'MPLightFULL': 'Full State MPLight',
@@ -67,7 +68,7 @@ chart = {
         'Average Wait': [],
         'Average Trip Time': []
     },
-    'IDQN2': {
+    'IDDQN3': {
         'Average Queue': [],
         'Average Delay': [],
         'Average Wait': [],
@@ -219,6 +220,7 @@ for met_i, metric_data in enumerate(metrics_data):
     plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     plt.legend(fontsize=12)
     plt.tight_layout()
+    # plt.ylim(top=3)
     # plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
     bot, top = plt.ylim()
     if bot < 0:

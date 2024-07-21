@@ -3,7 +3,7 @@ import numpy as np
 import traci
 import sumolib
 import gym
-from traffic_signal import Signal
+from traffic_signal2 import Signal
 from xml.etree.ElementTree import Element, SubElement, tostring, ElementTree
 
 
@@ -219,6 +219,9 @@ class MultiSignal(gym.Env):
     
     def step_fixed(self):
         self.step_sim()
+        
+        for signal in self.signal_ids:
+            self.signals[signal].observe(self.step_length, self.max_distance)
 
         # observe new state and reward
         observations = self.state_fn(self.signals)

@@ -4,7 +4,9 @@ import datetime
 import math
 
 csv_lanelength = 'environments/jakarta/lane-length-new.csv'
-csv_list = ['lanedata_jakarta_fixed.csv',]
+# csv_list = ['lane-data_jkt_blocker.csv','lane-data_jkt_fixed.csv', 'lane-data_jkt_fixed2.csv', 'lane-data_jkt_blocker2.csv',]
+# csv_list = ['Jakarta Normal.csv','Jakarta Blocked 2 Lanes.csv','Jakarta Blocked 3 Lanes.csv']
+csv_list = ['tools/data/Jakarta Normal.csv','tools/data/Standard agent test.csv', 'tools/data/Robust agent test.csv', 'tools/data/Standard agent PGD attack.csv', 'tools/data/Robust agent PGD attack.csv']
 # csv_list = ['lane_ids.csv']
 # print(csv_lanelength)
 # print(csv_list[0])

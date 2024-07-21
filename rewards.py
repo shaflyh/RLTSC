@@ -9,7 +9,19 @@ def queue(signals):
         total_queue = 0
         for lane in signals[signal_id].lanes:
             total_queue += signals[signal_id].full_observation[lane]['queue']
+            
+        rewards[signal_id] = -total_queue
+        # print(signal_id)
+        # print(rewards[signal_id])
+    return rewards
 
+def queue_norm(signals):
+    rewards = dict()
+    for signal_id in signals:
+        total_queue = 0
+        for lane in signals[signal_id].lanes:
+            total_queue += signals[signal_id].full_observation[lane]['queue']
+            
         rewards[signal_id] = -total_queue
         # print(signal_id)
         # print(rewards[signal_id])

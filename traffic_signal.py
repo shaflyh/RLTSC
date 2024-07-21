@@ -2,6 +2,7 @@ import traci
 import copy
 import re
 from config.signal_config import signal_configs
+from typing import List
 
 
 def create_yellows(phases, yellow_length):
@@ -24,12 +25,16 @@ def create_yellows(phases, yellow_length):
     return new_phases, yellow_dict
 
 
-class Signal:
+class Signal11:
+    # Default min gap of SUMO (see https://sumo.dlr.de/docs/Simulation/Safety.html). Should this be parameterized?
+    # MIN_GAP = 2.5
+    
     def __init__(self, map_name, sumo, id, yellow_length, phases):
         self.sumo = sumo
         self.id = id
         self.yellow_time = yellow_length
         self.next_phase = 0
+        self.max_green_time = 60
 
         links = self.sumo.trafficlight.getControlledLinks(self.id)
         lanes = []
@@ -181,7 +186,10 @@ class Signal:
         return self.sumo.trafficlight.getPhase(self.id)
 
     def prep_phase(self, new_phase):
-        if self.phase == new_phase:
+        current_phase_duration = self.sumo.trafficlight.getPhaseDuration(self.id)
+        if current_phase_duration >= self.max_green_time:
+            self.next_phase = (self.phase + 1) % len(self.phases)
+        elif self.phase == new_phase:
             self.next_phase = self.phase
         else:
             self.next_phase = new_phase
@@ -191,6 +199,9 @@ class Signal:
                 self.sumo.trafficlight.setPhase(self.id, yel_idx)  # turns yellow
 
     def set_phase(self):
+        current_phase_duration = self.sumo.trafficlight.getPhaseDuration(self.id)
+        if current_phase_duration >= self.max_green_time:
+            self.next_phase = (self.phase + 1) % len(self.phases)
         self.sumo.trafficlight.setPhase(self.id, int(self.next_phase))
 
     def observe(self, step_length, distance):

@@ -31,7 +31,7 @@ def drq(signals):
     return observations
 
 def random_error(queue_length):
-    random_change = random.randint(-1, 1)
+    random_change = random.randint(-3, 3)
     queue_length += random_change
     queue_length = max(queue_length, 0)
     return queue_length
@@ -51,17 +51,68 @@ def drq_norm(signals):
                 
             queue_length = signal.full_observation[lane]['queue']
 
-            lane_obs.append(signal.full_observation[lane]['approach'] / 28)
-            lane_obs.append(signal.full_observation[lane]['total_wait'] / 28)
-            lane_obs.append(queue_length / 28)
+            lane_obs.append(signal.full_observation[lane]['approach'] / 100)
+            lane_obs.append(signal.full_observation[lane]['total_wait'] / 100)
+            lane_obs.append(queue_length / 100)
 
             total_speed = 0
             vehicles = signal.full_observation[lane]['vehicles']
             for vehicle in vehicles:
-                total_speed += (vehicle['speed'] / 20 / 28)
+                total_speed += (vehicle['speed'] / 20 / 100)
             lane_obs.append(total_speed)
 
             obs.append(lane_obs)
+        observations[signal_id] = np.expand_dims(np.asarray(obs), axis=0)
+    return observations
+
+def all_norm(signals):
+    observations = dict()
+    for signal_id in signals:
+        signal = signals[signal_id]
+        obs = []
+        act_index = signal.phase
+        for i, lane in enumerate(signal.lanes):
+            lane_obs = []
+            if i == act_index:
+                lane_obs.append(1)
+            else:
+                lane_obs.append(0)
+                
+            lane_obs.append(signal.full_observation[lane]['approach'] / 100)
+            lane_obs.append(signal.full_observation[lane]['total_wait'] / 100)
+            lane_obs.append((signal.full_observation[lane]['queue']) / 100)
+            lane_obs.append(signal.pressure)
+
+            total_speed = 0
+            vehicles = signal.full_observation[lane]['vehicles']
+            for vehicle in vehicles:
+                total_speed += (vehicle['speed'] / 20 / 100)
+            lane_obs.append(total_speed)
+
+            obs.append(lane_obs)
+        observations[signal_id] = np.expand_dims(np.asarray(obs), axis=0)
+    return observations
+
+def pressure_queue(signals):
+    observations = dict()
+    for signal_id in signals:
+        signal = signals[signal_id]
+        obs = []
+        act_index = signal.phase
+        for i, lane in enumerate(signal.lanes):
+            lane_obs = []
+            if i == act_index:
+                lane_obs.append(1)
+            else:
+                lane_obs.append(0)
+                
+            queue_length = signal.full_observation[lane]['queue']
+            lane_obs.append(queue_length / 20)
+            pressure = signal.pressure
+            # print(pressure)
+            lane_obs.append(pressure)
+            obs.append(lane_obs)
+        
         observations[signal_id] = np.expand_dims(np.asarray(obs), axis=0)
     return observations
 

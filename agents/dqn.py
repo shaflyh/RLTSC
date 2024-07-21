@@ -355,7 +355,9 @@ class DQN(agent.AttributeSavingMixin, agent.BatchAgent):
         # loss = self._compute_loss(exp_batch, errors_out=errors_out)
 
         # loss = self._compute_standard_loss(exp_batch)
-        loss = self._compute_robust_loss(exp_batch, 5/100, 0.5)
+        # loss = self._compute_robust_loss(exp_batch, 5/100, 0.2)
+        # loss = self._compute_robust_loss(exp_batch, 5/100, 0.5)
+        
         if has_weight:
             assert isinstance(self.replay_buffer, PrioritizedReplayBuffer)
             self.replay_buffer.update_errors(errors_out)
